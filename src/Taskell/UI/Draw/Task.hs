@@ -23,6 +23,9 @@ import           Taskell.UI.Draw.Types      (DSWidget, DrawState (..), ReaderDra
 import           Taskell.UI.Theme
 import           Taskell.UI.Types           (ResourceName)
 
+import Taskell.Data.Date (deadline, timeToDisplay)
+
+
 data TaskWidget = TaskWidget
     { textW     :: TWidget
     , dateW     :: TWidget
@@ -30,14 +33,28 @@ data TaskWidget = TaskWidget
     , subtasksW :: TWidget
     }
 
--- | Takes a task's 'due' property and renders a date with appropriate styling (e.g. red if overdue)
+-- -- | Takes a task's 'due' property and renders a date with appropriate styling (e.g. red if overdue)
+-- renderDate :: T.Task -> DSWidget
+-- renderDate task = do
+--     now <- (^. time) <$> asks dsState
+--     tz <- (^. timeZone) <$> asks dsState
+--     pure . fromMaybe emptyWidget $
+--         (\date -> withAttr (dlToAttr $ deadline now date) (txt $ timeToText tz now date)) <$>
+--         task ^. T.due
+
+
+-- | Renders the due date with appropriate styling based on the deadline
 renderDate :: T.Task -> DSWidget
 renderDate task = do
     now <- (^. time) <$> asks dsState
     tz <- (^. timeZone) <$> asks dsState
     pure . fromMaybe emptyWidget $
-        (\date -> withAttr (dlToAttr $ deadline now date) (txt $ timeToText tz now date)) <$>
+        (\date -> withAttr (dlToAttr $ deadline now date) (txt $ timeToDisplay tz now date)) <$>
         task ^. T.due
+
+
+
+
 
 -- | Renders the appropriate completed sub task count e.g. "[2/3]"
 renderSubtaskCount :: T.Task -> DSWidget

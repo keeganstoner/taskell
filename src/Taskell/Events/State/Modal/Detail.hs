@@ -157,12 +157,25 @@ editDescription state = do
     let summ' = fromMaybe "" summ
     pure $ state & mode .~ Modal (Detail DetailDescription (DetailInsert (textToField summ')))
 
+-- editDue :: Stateful
+-- editDue state = do
+--     day <- (^. due) <$> getCurrentTask state
+--     let tz = state ^. timeZone
+--     let day' = maybe "" (timeToDisplay tz) day
+--     pure $ state & mode .~ Modal (Detail DetailDate (DetailInsert (textToField day')))
+
 editDue :: Stateful
 editDue state = do
     day <- (^. due) <$> getCurrentTask state
     let tz = state ^. timeZone
-    let day' = maybe "" (timeToDisplay tz) day
+    let now = state ^. time
+    let day' = maybe "" (timeToDisplay tz now) day
     pure $ state & mode .~ Modal (Detail DetailDate (DetailInsert (textToField day')))
+
+
+
+
+
 
 newItem :: Stateful
 newItem state = do

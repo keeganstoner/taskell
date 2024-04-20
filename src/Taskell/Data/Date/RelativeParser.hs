@@ -43,6 +43,8 @@ hP = (* hour) <$> timePeriodP 'h'
 mP :: Parser Int
 mP = (* minute) <$> timePeriodP 'm'
 
+-- Add day of week parsing
+
 sP :: Parser Int
 sP = timePeriodP 's'
 

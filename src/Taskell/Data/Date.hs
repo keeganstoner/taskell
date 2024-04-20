@@ -34,6 +34,7 @@ import Data.Time.LocalTime (LocalTime, localDay, utcToLocalTime, utc)
 import qualified Data.Text as T -- If not already imported, for using pack
 
 
+
 -- formats
 dateFormat :: String
 dateFormat = "%Y-%m-%d"
@@ -76,30 +77,26 @@ timeToText tz now (DueTime time) = format fmt local
 
 
 
-
-
--- Adjust the timeToDisplay function to handle String to Text conversion
+-- Function to display dates in a user-friendly manner, including handling of overdue dates
 timeToDisplay :: TZ -> UTCTime -> Due -> Text
 timeToDisplay tz now due = case due of
-    DueDate day -> if daysBetween now day < 7 then
-                       if daysBetween now day == 0 then
-                           "Today"
-                       else if daysBetween now day == 1 then
-                           "Tomorrow"
-                       else
-                           T.pack (dayOfWeek day)  -- Convert String to Text
-                   else
-                       format dateFormat day
+    DueDate day ->
+        let daysDiff = daysBetween now day
+        in if daysDiff < 0 then
+            "Overdue"
+        else if daysDiff == 0 then
+            "Today"
+        else if daysDiff == 1 then
+            "Tomorrow"
+        else if daysDiff < 7 then
+            T.pack (dayOfWeek day)  -- Convert String to Text
+        else
+            format dateFormat day
     DueTime time -> format timeDisplayFormat (utcToLocalTimeTZ tz time)
   where
     dayOfWeek date = formatTime defaultTimeLocale "%A" date
     daysBetween d1 d2 = diffDays d2 (utcTimeToDay d1)
-
--- Helper function to extract the day component from UTCTime
-utcTimeToDay :: UTCTime -> Day
-utcTimeToDay utcTime = localDay $ utcToLocalTime utc utcTime
-
-
+    utcTimeToDay utcTime = localDay $ utcToLocalTime utc utcTime
 
 
 

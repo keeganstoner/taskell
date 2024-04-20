@@ -59,9 +59,9 @@ dlToAttr :: Deadline -> AttrName
 dlToAttr dl =
     case dl of
         Plenty   -> dlFar
-        ThisWeek -> dlSoon
+        ThisWeek -> dlFar
         Tomorrow -> dlSoon
-        Today    -> dlDue
+        Today    -> dlSoon
         Passed   -> dlDue
 
 -- default theme

@@ -19,7 +19,7 @@ instance Ord Due where
 data Deadline
     = Passed
     | Today
-    | Tomorrow
-    | ThisWeek
+    | Tomorrow -- Print out "tomorrow"
+    | ThisWeek -- print out day of week
     | Plenty
     deriving (Show, Eq)

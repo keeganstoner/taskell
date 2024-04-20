@@ -24,6 +24,9 @@ import           Taskell.UI.Draw.Types             (DrawState (..), ModalWidget,
 import           Taskell.UI.Theme                  (disabledAttr, dlToAttr, subtaskCompleteAttr,
                                                     subtaskCurrentAttr, subtaskIncompleteAttr)
 
+import Data.Time.Clock (UTCTime) -- Make sure you have this import
+
+
 renderSubtask :: Maybe Field -> DetailItem -> Int -> ST.Subtask -> TWidget
 renderSubtask f current i subtask = padBottom (Pad 1) $ prefix <+> final
   where
@@ -58,6 +61,25 @@ renderSummary f i task = padTop (Pad 1) $ padBottom (Pad 2) w'
             DetailDescription -> visible $ widgetFromMaybe w f
             _                 -> w
 
+
+
+
+
+-- renderDate :: TZ -> UTCTime -> Maybe Field -> DetailItem -> Task -> TWidget
+-- renderDate tz now field item task =
+--     case item of
+--         DetailDate -> visible $ prefix <+> widgetFromMaybe widget field
+--         _ ->
+--             case day of
+--                 Just d  -> prefix <+> withAttr (dlToAttr (deadline now d)) widget
+--                 Nothing -> emptyWidget
+--   where
+--     day = task ^. due
+--     prefix = txt "Due: "
+--     widget = textField $ maybe "" (timeToDisplay tz) day
+
+
+-- Rendering function for the date field in the task details
 renderDate :: TZ -> UTCTime -> Maybe Field -> DetailItem -> Task -> TWidget
 renderDate tz now field item task =
     case item of
@@ -69,7 +91,11 @@ renderDate tz now field item task =
   where
     day = task ^. due
     prefix = txt "Due: "
-    widget = textField $ maybe "" (timeToDisplay tz) day
+    widget = textField $ maybe "" (timeToDisplay tz now) day  -- Pass 'now' to timeToDisplay
+
+
+
+
 
 detail :: ModalWidget
 detail = do

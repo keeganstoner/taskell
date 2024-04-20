@@ -25,6 +25,15 @@ import Data.Time.Format   (FormatTime, ParseTime, iso8601DateFormat)
 import Taskell.Data.Date.RelativeParser (parseRelative)
 import Taskell.Data.Date.Types          (Deadline (..), Due (..))
 
+import Data.Time.Calendar (addDays, toGregorian, fromGregorian)
+import Data.Time.Calendar.WeekDate (toWeekDate)
+import Data.Time.Format (formatTime, defaultTimeLocale)
+import Data.Time.Clock (UTCTime, getCurrentTime)
+import Data.Time.LocalTime (LocalTime, localDay, utcToLocalTime, utc)
+
+import qualified Data.Text as T -- If not already imported, for using pack
+
+
 -- formats
 dateFormat :: String
 dateFormat = "%Y-%m-%d"
@@ -61,9 +70,41 @@ timeToText tz now (DueTime time) = format fmt local
     local = utcToLocalTimeTZ tz time
     fmt = appendYear "%H:%M %d-%b" now local
 
-timeToDisplay :: TZ -> Due -> Text
-timeToDisplay _ (DueDate day)   = format dateFormat day
-timeToDisplay tz (DueTime time) = format timeDisplayFormat (utcToLocalTimeTZ tz time)
+-- timeToDisplay :: TZ -> Due -> Text
+-- timeToDisplay _ (DueDate day)   = format dateFormat day -- right here maybe
+-- timeToDisplay tz (DueTime time) = format timeDisplayFormat (utcToLocalTimeTZ tz time)
+
+
+
+
+
+-- Adjust the timeToDisplay function to handle String to Text conversion
+timeToDisplay :: TZ -> UTCTime -> Due -> Text
+timeToDisplay tz now due = case due of
+    DueDate day -> if daysBetween now day < 7 then
+                       if daysBetween now day == 0 then
+                           "Today"
+                       else if daysBetween now day == 1 then
+                           "Tomorrow"
+                       else
+                           T.pack (dayOfWeek day)  -- Convert String to Text
+                   else
+                       format dateFormat day
+    DueTime time -> format timeDisplayFormat (utcToLocalTimeTZ tz time)
+  where
+    dayOfWeek date = formatTime defaultTimeLocale "%A" date
+    daysBetween d1 d2 = diffDays d2 (utcTimeToDay d1)
+
+-- Helper function to extract the day component from UTCTime
+utcTimeToDay :: UTCTime -> Day
+utcTimeToDay utcTime = localDay $ utcToLocalTime utc utcTime
+
+
+
+
+
+
+
 
 timeToOutput :: Due -> Text
 timeToOutput (DueDate day)  = format dateFormat day

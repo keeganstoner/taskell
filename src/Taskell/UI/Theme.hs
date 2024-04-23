@@ -61,7 +61,7 @@ dlToAttr dl =
         Plenty   -> dlFar
         ThisWeek -> dlFar
         Tomorrow -> dlSoon
-        Today    -> dlSoon
+        Today    -> dlDue
         Passed   -> dlDue
 
 -- default theme

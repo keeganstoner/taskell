@@ -1,0 +1,14 @@
+In Taskell.Events.State.hs there are a bunch of functions imported from Taskell.Data.List and Taskell.Data.Task, etc. 
+
+Then they are overwritten (I think)
+
+Example: getCurrentTask. 
+In State.hs, this is a function State -> Maybe Task
+defined as getList state >>= L.getTask
+
+L was imported as Taskell.Data.List, and getTask is defined in there. 
+There, getTask is Int -> List -> Maybe T.Task (T is Taskell.Data.Task)
+defined as idx = (^? tasks . element idx), whatever that means. 
+
+
+

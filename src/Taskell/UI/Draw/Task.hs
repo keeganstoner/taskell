@@ -122,3 +122,16 @@ renderTask rn listIndex taskIndex task = do
             if T.contains term task
                 then taskWidget
                 else pure emptyWidget
+
+-- renderTask :: (Int -> ResourceName) -> Int -> Int -> Bool -> T.Task -> DSWidget
+-- renderTask rn listIndex taskIndex includeNumbering task = do
+--     searchT <- (getText <$>) . (^. searchTerm) <$> asks dsState
+--     taskWidget <- renderTask' rn listIndex taskIndex task
+--     let numberWidget = if includeNumbering then txt $ tshow (taskIndex + 1) <> ". " else emptyWidget
+--     -- Combine widgets within the monadic context
+--     let combinedWidget = hBox [numberWidget, taskWidget]
+--     case searchT of
+--         Nothing -> return combinedWidget
+--         Just term -> if T.contains term task
+--                         then return combinedWidget
+--                         else return emptyWidget

@@ -46,7 +46,7 @@ renderTitle listIndex list = do
     (ListIndex selectedList, TaskIndex selectedTask) <- (^. current) <$> asks dsState
     editing <- (selectedList == listIndex &&) . editingTitle . (^. mode) <$> asks dsState
     titleField <- getField . (^. mode) <$> asks dsState
-    col <- txt <$> columnPrefix selectedList listIndex
+    let col = emptyWidget  -- Remove any prefix by always using an empty widget
     let text = list ^. title
         attr =
             if selectedList == listIndex
@@ -64,26 +64,53 @@ renderTitle listIndex list = do
             then visible title'
             else title'
 
--- | Renders a list
+
+
+-- -- | Renders a list
+-- renderList :: Int -> List -> DSWidget
+-- renderList listIndex list = do
+--     layout <- dsLayout <$> ask
+--     eTitle <- editingTitle . (^. mode) <$> asks dsState
+--     titleWidget <- renderTitle listIndex list
+--     (ListIndex currentList, _) <- (^. current) <$> asks dsState
+--     taskWidgets <-
+--         sequence $
+--         renderTask (RNTask . (ListIndex listIndex, ) . TaskIndex) listIndex `mapWithIndex`
+--         (list ^. tasks)
+--     let widget =
+--             (if not eTitle
+--                  then cached (RNList listIndex)
+--                  else id) .
+--             padLeftRight (columnPadding layout) .
+--             hLimit (columnWidth layout) .
+--             viewport (RNList listIndex) Vertical . vBox . (titleWidget :) $
+--             toList taskWidgets
+--     pure $
+--         if currentList == listIndex
+--             then visible widget
+--             else widget
+
+
 renderList :: Int -> List -> DSWidget
 renderList listIndex list = do
     layout <- dsLayout <$> ask
-    eTitle <- editingTitle . (^. mode) <$> asks dsState
     titleWidget <- renderTitle listIndex list
     (ListIndex currentList, _) <- (^. current) <$> asks dsState
-    taskWidgets <-
-        sequence $
-        renderTask (RNTask . (ListIndex listIndex, ) . TaskIndex) listIndex `mapWithIndex`
-        (list ^. tasks)
-    let widget =
-            (if not eTitle
-                 then cached (RNList listIndex)
-                 else id) .
-            padLeftRight (columnPadding layout) .
-            hLimit (columnWidth layout) .
-            viewport (RNList listIndex) Vertical . vBox . (titleWidget :) $
-            toList taskWidgets
-    pure $
-        if currentList == listIndex
-            then visible widget
-            else widget
+    taskWidgets <- mapM (\(idx, task) -> do
+                           let taskNumberWidget = if listIndex == 0 then txt (tshow (idx + 1) <> ". ") else emptyWidget
+                           let resourceName = \_ -> RNTask (ListIndex listIndex, TaskIndex idx)  -- Always return the same resource name
+                           taskWidget <- renderTask resourceName listIndex idx task
+                           return $ if listIndex == 0
+                                       then hBox [taskNumberWidget, taskWidget]
+                                       else taskWidget
+                        ) (zip [0..] (toList $ list ^. tasks))
+    let widgetList = vBox (titleWidget : taskWidgets)
+    let widget = (cached (RNList listIndex) .
+                  padLeftRight (columnPadding layout) .
+                  hLimit (columnWidth layout) .
+                  viewport (RNList listIndex) Vertical) widgetList
+    return $ if currentList == listIndex
+                then visible widget
+                else widget
+
+

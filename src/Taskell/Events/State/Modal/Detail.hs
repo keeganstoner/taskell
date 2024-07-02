@@ -81,6 +81,16 @@ finishSubtask state = do
     task <- updateSubtask i (ST.name .~ text) <$> getCurrentTask state
     setCurrentTask task $ state & mode .~ Modal (Detail (DetailItem i) (DetailInsert blankField))
 
+-- finishSubtask :: Stateful
+-- finishSubtask state = do
+--     text <- getText <$> getField state
+--     i <- getCurrentSubtask state
+--     task <- updateSubtask i (ST.name .~ text) <$> getCurrentTask state
+--     setCurrentTask task $ state & mode .~ Modal (Detail (DetailItem i) DetailNormal)
+
+
+
+
 finish :: (Text -> Task -> Task) -> Stateful
 finish fn state = do
     text <- getText <$> getField state

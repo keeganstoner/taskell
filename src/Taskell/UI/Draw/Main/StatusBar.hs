@@ -2,6 +2,9 @@ module Taskell.UI.Draw.Main.StatusBar
     ( renderStatusBar
     ) where
 
+import System.IO.Unsafe (unsafePerformIO)
+import Data.Time
+
 import ClassyPrelude
 
 import Control.Lens ((^.))
@@ -17,6 +20,16 @@ import Taskell.Types                   (ListIndex (ListIndex), TaskIndex (TaskIn
 import Taskell.UI.Draw.Field           (Field)
 import Taskell.UI.Draw.Types           (DSWidget, DrawState (..), ReaderDrawState)
 import Taskell.UI.Theme
+
+getFormattedDate :: IO Text
+getFormattedDate = do
+    zone <- getCurrentTimeZone
+    now <- getCurrentTime
+    let localTime = utcToLocalTime zone now
+    let dayOfWeek = formatTime defaultTimeLocale "%A" localTime
+    let date = formatTime defaultTimeLocale "%B %e" localTime
+    pure $ pack (dayOfWeek ++ ", " ++ date)
+
 
 getPosition :: ReaderDrawState Text
 getPosition = do
@@ -63,3 +76,20 @@ renderStatusBar = do
     let md = txt modeTxt
     let bar = padRight Max (titl <+> md) <+> pos
     pure . padTop (Pad 1) $ withAttr statusBarAttr bar
+
+
+
+-- renderStatusBar :: DSWidget
+-- renderStatusBar = do
+--     let now = unsafePerformIO getCurrentTime  -- Not recommended typically
+--     let dateString = formatTime defaultTimeLocale "%A, %B%e" now
+--     topPath <- pack . (^. path) <$> asks dsState
+--     colPad <- columnPadding <$> asks dsLayout
+--     posTxt <- getPosition
+--     modeTxt <- getMode
+--     let dateTxt = txt $ pack dateString
+--     let titl = padLeftRight colPad $ txt topPath
+--     let pos = padRight (Pad colPad) $ txt posTxt
+--     let md = txt modeTxt
+--     let bar = padRight Max (dateTxt <+> titl <+> md) <+> pos
+--     pure . padTop (Pad 1) $ withAttr statusBarAttr bar

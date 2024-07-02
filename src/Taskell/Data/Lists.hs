@@ -28,6 +28,7 @@ updateLists = S.update
 count :: Int -> Lists -> Int
 count idx tasks = maybe 0 L.count (tasks !? idx)
 
+-- I think this (below) is a sorted list by due date
 due :: Lists -> Seq (Pointer, T.Task)
 due lists = sortOn ((^. T.due) . snd) dues
   where

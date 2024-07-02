@@ -2,14 +2,20 @@ module Taskell.IO.Keyboard.Types where
 
 import ClassyPrelude
 
-import Graphics.Vty.Input.Events (Event (..), Key (..))
+import Graphics.Vty.Input.Events (Event (..), Key (..), Modifier (..))
 
 import qualified Taskell.Events.Actions.Types as A (ActionType)
 import           Taskell.Events.State.Types   (Stateful)
 
+-- data Binding
+--     = BChar Char
+--     | BKey Text
+--     deriving (Eq, Ord)
+
 data Binding
     = BChar Char
     | BKey Text
+    | BMod Modifier Key
     deriving (Eq, Ord)
 
 type Bindings = [(Binding, A.ActionType)]
@@ -18,24 +24,57 @@ type Actions = Map A.ActionType Stateful
 
 type BoundActions = Map Event Stateful
 
+-- instance Show Binding where
+--     show (BChar c)      = singleton c
+    -- show (BKey "Up")    = "↑"
+    -- show (BKey "Down")  = "↓"
+    -- show (BKey "Left")  = "←"
+    -- show (BKey "Right") = "→"
+--     show (BKey name)    = "<" <> unpack name <> ">"
+
 instance Show Binding where
-    show (BChar c)      = singleton c
+    show (BChar c)      = [c]
     show (BKey "Up")    = "↑"
     show (BKey "Down")  = "↓"
     show (BKey "Left")  = "←"
     show (BKey "Right") = "→"
     show (BKey name)    = "<" <> unpack name <> ">"
+    show (BMod mod key) = "<" <> show mod <> "+" <> show key <> ">"
+
+
+showKey :: Key -> Text
+showKey KUp    = "Up"
+showKey KDown  = "Down"
+showKey KLeft  = "Left"
+showKey KRight = "Right"
+showKey key    = tshow key
+
+
 
 bindingsToText :: Bindings -> A.ActionType -> [Text]
 bindingsToText bindings key = tshow . fst <$> toList (filterMap (== key) bindings)
 
+-- bindingToEvent :: Binding -> Maybe Event
+-- bindingToEvent (BChar char)       = pure $ EvKey (KChar char) []
+-- bindingToEvent (BKey "Space")     = pure $ EvKey (KChar ' ') []
+-- bindingToEvent (BKey "Backspace") = pure $ EvKey KBS []
+-- bindingToEvent (BKey "Enter")     = pure $ EvKey KEnter []
+-- bindingToEvent (BKey "Left")      = pure $ EvKey KLeft []
+-- bindingToEvent (BKey "Right")     = pure $ EvKey KRight []
+-- bindingToEvent (BKey "Up")        = pure $ EvKey KUp []
+-- bindingToEvent (BKey "Down")      = pure $ EvKey KDown []
+-- bindingToEvent _                  = Nothing
+
 bindingToEvent :: Binding -> Maybe Event
-bindingToEvent (BChar char)       = pure $ EvKey (KChar char) []
-bindingToEvent (BKey "Space")     = pure $ EvKey (KChar ' ') []
-bindingToEvent (BKey "Backspace") = pure $ EvKey KBS []
-bindingToEvent (BKey "Enter")     = pure $ EvKey KEnter []
-bindingToEvent (BKey "Left")      = pure $ EvKey KLeft []
-bindingToEvent (BKey "Right")     = pure $ EvKey KRight []
-bindingToEvent (BKey "Up")        = pure $ EvKey KUp []
-bindingToEvent (BKey "Down")      = pure $ EvKey KDown []
-bindingToEvent _                  = Nothing
+bindingToEvent (BChar char) = pure $ EvKey (KChar char) []
+bindingToEvent (BKey "Up") = pure $ EvKey KUp []
+bindingToEvent (BKey "Down") = pure $ EvKey KDown []
+bindingToEvent (BKey "Left") = pure $ EvKey KLeft []
+bindingToEvent (BKey "Right") = pure $ EvKey KRight []
+bindingToEvent (BKey key) = Nothing  -- You can handle other keys similarly if needed
+bindingToEvent (BMod MShift key) = case key of
+    KUp -> pure $ EvKey KUp [MShift]
+    KDown -> pure $ EvKey KDown [MShift]
+    KLeft -> pure $ EvKey KLeft [MShift]
+    KRight -> pure $ EvKey KRight [MShift]
+    _ -> Nothing

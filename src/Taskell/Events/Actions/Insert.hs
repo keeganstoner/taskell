@@ -19,7 +19,8 @@ event (EvKey KEnter _) state =
             (write =<<) . (startCreate =<<) . (newItem =<<) . (store =<<) $ createList state
         Insert IList IEdit _ -> (write =<<) . (normalMode =<<) $ finishListTitle state
         Insert ITask ICreate _ ->
-            (write =<<) . (below =<<) . (removeBlank =<<) . (store =<<) $ finishTask state
+            -- (write =<<) . (below =<<) . (removeBlank =<<) . (store =<<) $ finishTask state
+            (write =<<) . (normalMode =<<) . (removeBlank =<<) . (store =<<) $ finishTask state
         Insert ITask IEdit _ ->
             (write =<<) . (removeBlank =<<) . (normalMode =<<) $ finishTask state
         _ -> pure state

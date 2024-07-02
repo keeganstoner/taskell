@@ -41,6 +41,25 @@ normal :: Event -> Stateful
 normal (EvKey KEsc _) = normalMode
 normal _ = pure
 
+
+-- insert :: Event -> Stateful
+-- insert (EvKey KEsc _) s = do
+--     item <- getCurrentItem s
+--     case item of
+--         DetailDescription -> (write =<<) $ finishDescription s
+--         DetailDate -> showDetail s
+--         (DetailItem _) -> (write =<<) . showDetail $ finishSubtask s
+-- insert (EvKey KEnter _) s = do
+--     item <- getCurrentItem s
+--     case item of
+--         DetailDescription -> (write =<<) $ finishDescription s
+--         DetailDate -> (write =<<) $ finishDue s
+--         (DetailItem _) -> do
+--             updatedState <- finishSubtask s
+--             (write =<<) $ showDetail updatedState
+-- insert e s = updateField (F.event e) s
+
+
 insert :: Event -> Stateful
 insert (EvKey KEsc _) s = do
     item <- getCurrentItem s
@@ -53,8 +72,13 @@ insert (EvKey KEnter _) s = do
     case item of
         DetailDescription -> (write =<<) $ finishDescription s
         DetailDate -> (write =<<) $ finishDue s
-        (DetailItem _) -> (Detail.newBelow =<<) . (write =<<) $ finishSubtask s
+        (DetailItem _) -> do
+            updatedState <- finishSubtask s
+            (write =<<) $ showDetail updatedState
+
 insert e s = updateField (F.event e) s
+
+
 
 event :: Event -> Stateful
 event e s = do

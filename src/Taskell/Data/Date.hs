@@ -132,6 +132,8 @@ inputToTime tz now txt =
         Right due -> Just due
         Left _    -> Nothing
 
+
+
 isoToTime :: Text -> Maybe Due
 isoToTime txt = DueTime <$> parseT isoFormat txt
 

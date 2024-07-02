@@ -21,14 +21,21 @@ import Taskell.UI.Draw.Field           (Field)
 import Taskell.UI.Draw.Types           (DSWidget, DrawState (..), ReaderDrawState)
 import Taskell.UI.Theme
 
-getFormattedDate :: IO Text
-getFormattedDate = do
-    zone <- getCurrentTimeZone
-    now <- getCurrentTime
-    let localTime = utcToLocalTime zone now
-    let dayOfWeek = formatTime defaultTimeLocale "%A" localTime
-    let date = formatTime defaultTimeLocale "%B %e" localTime
-    pure $ pack (dayOfWeek ++ ", " ++ date)
+-- getFormattedDate :: IO Text
+-- getFormattedDate = do
+--     zone <- getCurrentTimeZone
+--     now <- getCurrentTime
+--     let localTime = utcToLocalTime zone now
+--     let dayOfWeek = formatTime defaultTimeLocale "%A" localTime
+--     let date = formatTime defaultTimeLocale "%B %e" localTime
+--     pure $ pack (dayOfWeek ++ ", " ++ date)
+
+
+-- getFormattedDate :: IO Text
+-- getFormattedDate = do
+--     now <- getCurrentTime
+--     let formatted = formatTime defaultTimeLocale "%A, %B %d, %Y %H:%M:%S UTC" now
+--     pure $ pack formatted
 
 
 getPosition :: ReaderDrawState Text
@@ -92,4 +99,18 @@ renderStatusBar = do
 --     let pos = padRight (Pad colPad) $ txt posTxt
 --     let md = txt modeTxt
 --     let bar = padRight Max (dateTxt <+> titl <+> md) <+> pos
+--     pure . padTop (Pad 1) $ withAttr statusBarAttr bar
+
+-- renderStatusBar :: DSWidget
+-- renderStatusBar = do
+--     topPath <- pack . (^. path) <$> asks dsState
+--     colPad <- columnPadding <$> asks dsLayout
+--     posTxt <- getPosition
+--     modeTxt <- getMode
+--     let currentDate = unsafePerformIO getFormattedDate  -- Getting current date and time with unsafePerformIO
+--     let dateTxt = txt currentDate  -- Convert the date and time to a Brick Text widget
+--     let titl = padLeftRight colPad $ txt topPath
+--     let pos = padRight (Pad colPad) $ txt posTxt
+--     let md = txt modeTxt
+--     let bar = padRight Max (dateTxt <+> titl <+> md) <+> pos  -- Include the date and time on the left of the status bar
 --     pure . padTop (Pad 1) $ withAttr statusBarAttr bar

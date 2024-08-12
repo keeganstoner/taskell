@@ -27,6 +27,32 @@ import           Taskell.UI.Theme                  (disabledAttr, dlToAttr, subt
 import Data.Time.Clock (UTCTime) -- Make sure you have this import
 
 
+-- renderSubtask :: Maybe Field -> DetailItem -> Int -> ST.Subtask -> TWidget
+-- renderSubtask f current i subtask = padBottom (Pad 1) $ prefix <+> final
+--   where
+--     cur =
+--         case current of
+--             DetailItem c -> i == c
+--             _            -> False
+--     done = subtask ^. ST.complete
+--     attr =
+--         withAttr
+--             (if cur
+--                  then subtaskCurrentAttr
+--                  else (if done
+--                            then subtaskCompleteAttr
+--                            else subtaskIncompleteAttr))
+--     prefix =
+--         attr . txt $
+--         if done
+--             then "[x] "
+--             else "[ ] "
+--     widget = textField (subtask ^. ST.name)
+--     final
+--         | cur = visible . attr $ widgetFromMaybe widget f
+--         | otherwise = attr widget
+
+
 renderSubtask :: Maybe Field -> DetailItem -> Int -> ST.Subtask -> TWidget
 renderSubtask f current i subtask = padBottom (Pad 1) $ prefix <+> final
   where
@@ -35,22 +61,24 @@ renderSubtask f current i subtask = padBottom (Pad 1) $ prefix <+> final
             DetailItem c -> i == c
             _            -> False
     done = subtask ^. ST.complete
-    attr =
-        withAttr
-            (if cur
-                 then subtaskCurrentAttr
-                 else (if done
-                           then subtaskCompleteAttr
-                           else subtaskIncompleteAttr))
-    prefix =
-        attr . txt $
+    
+    -- Define the attribute based on completion status instead of selection
+    attr = withAttr (if done then subtaskCompleteAttr else subtaskIncompleteAttr)
+    
+    -- Define prefix to include the ">" only when selected
+    prefixSymbol = if cur then "> " else "  "  -- Add a ">" symbol if the subtask is selected
+    checkbox = 
         if done
             then "[x] "
             else "[ ] "
+    prefix =
+        attr . txt $ prefixSymbol ++ checkbox  -- Combine the new symbol with the existing checkbox
+    
     widget = textField (subtask ^. ST.name)
     final
         | cur = visible . attr $ widgetFromMaybe widget f
         | otherwise = attr widget
+
 
 renderSummary :: Maybe Field -> DetailItem -> Task -> TWidget
 renderSummary f i task = padTop (Pad 1) $ padBottom (Pad 2) w'

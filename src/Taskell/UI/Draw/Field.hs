@@ -10,7 +10,9 @@ import qualified Brick                     as B (Location (Location), Size (Fixe
                                                  vBox)
 import qualified Brick.Widgets.Core        as B (textWidth)
 import qualified Graphics.Text.Width       as V (safeWcwidth)
-import qualified Graphics.Vty.Input.Events as V (Event (..), Key (..))
+-- import qualified Graphics.Vty.Input.Events as V (Event (..), Key (..))
+import Graphics.Vty.Input.Events as V (Event (..), Key (..), Modifier (..))
+
 
 import qualified Taskell.UI.Types as UI (ResourceName (RNCursor))
 
@@ -23,6 +25,7 @@ blankField :: Field
 blankField = Field "" 0
 
 event :: V.Event -> Field -> Field
+event (V.EvKey (V.KEnter) [V.MShift]) f = insertText "\n" f  -- Handle Shift+Enter for new line
 event (V.EvKey (V.KChar '\t') _) f = f
 event (V.EvPaste bs) f             = insertText (decodeUtf8 bs) f
 event (V.EvKey V.KBS _) f          = backspace f

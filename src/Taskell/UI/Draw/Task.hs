@@ -92,11 +92,15 @@ renderTask' :: (Int -> ResourceName) -> Int -> Int -> T.Task -> DSWidget
 renderTask' rn listIndex taskIndex task = do
     eTitle <- editingTitle . (^. mode) <$> asks dsState -- is the title being edited? (for visibility)
     selected <- (== (ListIndex listIndex, TaskIndex taskIndex)) . (^. current) <$> asks dsState -- is the current task selected?
+    let important = "!" `isInfixOf` (task ^. T.name) -- Check if the task name contains "!"
     taskField <- getField . (^. mode) <$> asks dsState -- get the field, if it's being edited
     after <- indicators task -- get the indicators widget
     widget <- renderText task
     let name = rn taskIndex
         widget' = widgetFromMaybe widget taskField
+        -- Define the prefix and attributes based on selection and importance
+        prefix = if selected then "> " else "  "
+        attr = if important then taskCurrentAttr else taskAttr
     pure $
         cached name .
         (if selected && not eTitle
@@ -104,13 +108,8 @@ renderTask' rn listIndex taskIndex task = do
              else id) .
         padBottom (Pad 1) .
         (<=> withAttr disabledAttr after) .
-        withAttr
-            (if selected
-                 then taskCurrentAttr
-                 else taskAttr) $
-        if selected && not eTitle
-            then widget'
-            else widget
+        withAttr attr $
+        txt prefix <+> (if selected && not eTitle then widget' else widget)
 
 renderTask :: (Int -> ResourceName) -> Int -> Int -> T.Task -> DSWidget
 renderTask rn listIndex taskIndex task = do

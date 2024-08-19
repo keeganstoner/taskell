@@ -61,10 +61,15 @@ renderSubtask f current i subtask = padBottom (Pad 1) $ prefix <+> final
             DetailItem c -> i == c
             _            -> False
     done = subtask ^. ST.complete
-    
+    important = "!" `isInfixOf` (subtask ^. ST.name) -- Check if the subtask name contains "!"
+
     -- Define the attribute based on completion status instead of selection
-    attr = withAttr (if done then subtaskCompleteAttr else subtaskIncompleteAttr)
-    
+    attr = withAttr $ if done
+                        then subtaskCompleteAttr
+                        else if important && not done
+                            then subtaskCurrentAttr -- Use the current attribute for important uncompleted subtasks
+                            else subtaskIncompleteAttr
+                            
     -- Define prefix to include the ">" only when selected
     prefixSymbol = if cur then "> " else "  "  -- Add a ">" symbol if the subtask is selected
     checkbox = 

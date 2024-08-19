@@ -107,7 +107,7 @@ renderTask' rn listIndex taskIndex task = do
              then visible
              else id) .
         padBottom (Pad 1) .
-        (<=> withAttr disabledAttr after) .
+        (<=> withAttr disabledAttr (padLeft (Pad 2) after)) .
         withAttr attr $
         txt prefix <+> (if selected && not eTitle then widget' else widget)
 

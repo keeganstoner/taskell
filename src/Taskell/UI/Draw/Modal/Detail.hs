@@ -22,7 +22,7 @@ import           Taskell.Events.State.Types.Mode   (DetailItem (..))
 import           Taskell.UI.Draw.Field             (Field, textField, widgetFromMaybe)
 import           Taskell.UI.Draw.Types             (DrawState (..), ModalWidget, TWidget)
 import           Taskell.UI.Theme                  (disabledAttr, dlToAttr, subtaskCompleteAttr,
-                                                    subtaskCurrentAttr, subtaskIncompleteAttr)
+                                                    subtaskCurrentAttr, subtaskIncompleteAttr, taskCurrentAttr)
 
 import Data.Time.Clock (UTCTime) -- Make sure you have this import
 
@@ -144,4 +144,7 @@ detail = do
                 w
                     | null sts = withAttr disabledAttr $ txt "No sub-tasks"
                     | otherwise = vBox . toList $ renderSubtask f i `mapWithIndex` sts
+            -- let taskNameWidget = withAttr taskCurrentAttr $ txt (task ^. name)
+
             pure (task ^. name, renderDate tz now f i task <=> renderSummary f i task <=> w)
+            -- pure (task ^. name, taskNameWidget <=> renderDate tz now f i task <=> renderSummary f i task <=> w)

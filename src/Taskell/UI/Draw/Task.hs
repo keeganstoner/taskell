@@ -100,6 +100,10 @@ renderTask' rn listIndex taskIndex task = do
         widget' = widgetFromMaybe widget taskField
         -- Define the prefix and attributes based on selection and importance
         prefix = if selected then "> " else "  "
+
+        -- TODO can change arrow color with widget, but probably need to create new Attributes
+        -- prefixWidget = withAttr disabledAttr $ txt $ if selected then "> " else "  "
+
         attr = if important then taskCurrentAttr else taskAttr
     pure $
         cached name .
@@ -110,6 +114,8 @@ renderTask' rn listIndex taskIndex task = do
         (<=> withAttr disabledAttr (padLeft (Pad 2) after)) .
         withAttr attr $
         txt prefix <+> (if selected && not eTitle then widget' else widget)
+        -- (prefixWidget <+> withAttr attr (if selected && not eTitle then widget' else widget))
+
 
 renderTask :: (Int -> ResourceName) -> Int -> Int -> T.Task -> DSWidget
 renderTask rn listIndex taskIndex task = do

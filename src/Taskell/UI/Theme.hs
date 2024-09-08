@@ -8,14 +8,20 @@ module Taskell.UI.Theme
     , subtaskIncompleteAttr
     , taskAttr
     , disabledAttr
+    , taskProj1
     , dlToAttr
     , defaultTheme
+    , dlDue
+    , dlSoon
+    , dlFar
     ) where
+
 
 import Brick        (AttrName, attrName)
 import Brick.Themes (Theme, newTheme)
 import Brick.Util   (fg, on)
 import Graphics.Vty
+    ( defAttr, black, green, blue, magenta, yellow, red, white )
 
 import Taskell.Data.Date (Deadline (..))
 
@@ -31,6 +37,9 @@ titleCurrentAttr = attrName "titleCurrent"
 
 taskCurrentAttr :: AttrName
 taskCurrentAttr = attrName "taskCurrent"
+
+taskProj1 :: AttrName
+taskProj1 = attrName "taskProj1"
 
 taskAttr :: AttrName
 taskAttr = attrName "task"
@@ -73,10 +82,12 @@ defaultTheme =
         , (titleAttr, fg green)
         , (titleCurrentAttr, fg blue)
         , (taskCurrentAttr, fg magenta)
+        , (taskProj1, fg white)
+        -- , (taskCurrentAttr, fg (Color240 198))
         , (subtaskCurrentAttr, fg magenta)
         , (subtaskIncompleteAttr, fg blue)
         , (subtaskCompleteAttr, fg yellow)
-        , (taskCurrentAttr, fg magenta)
+        -- , (taskCurrentAttr, fg magenta)
         , (disabledAttr, fg yellow)
         , (dlDue, fg red)
         , (dlSoon, fg yellow)

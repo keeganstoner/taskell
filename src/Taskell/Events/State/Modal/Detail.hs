@@ -138,6 +138,8 @@ getField state =
         Modal (Detail _ (DetailInsert f)) -> Just f
         _ -> Nothing
 
+-- Probably want to copy this somehow to the Task file
+-- in addition to the toggle function
 setComplete :: Stateful
 setComplete state = do
     i <- getCurrentSubtask state

@@ -93,18 +93,31 @@ renderTask' rn listIndex taskIndex task = do
     eTitle <- editingTitle . (^. mode) <$> asks dsState -- is the title being edited? (for visibility)
     selected <- (== (ListIndex listIndex, TaskIndex taskIndex)) . (^. current) <$> asks dsState -- is the current task selected?
     let important = "!" `isInfixOf` (task ^. T.name) -- Check if the task name contains "!"
+    let breakLineTask = "---" `isInfixOf` (task ^. T.name) -- Check for a break line task
+    let taskName = task ^. T.name
+    -- TEST
+    let task1 = "TASK1" `isInfixOf` (task ^. T.name)
+
     taskField <- getField . (^. mode) <$> asks dsState -- get the field, if it's being edited
     after <- indicators task -- get the indicators widget
+    
     widget <- renderText task
+
     let name = rn taskIndex
         widget' = widgetFromMaybe widget taskField
-        -- Define the prefix and attributes based on selection and importance
         prefix = if selected then "> " else "  "
+        
+        -- attr 
+        --     | important = taskCurrentAttr
+        --     | task1 = taskProj1
+        --     | otherwise = taskAttr
+    let attr
+          | breakLineTask && "TODAY" `isInfixOf` taskName = dlDue
+          | breakLineTask && "TOMORROW" `isInfixOf` taskName = dlSoon
+          | breakLineTask = dlFar
+          | important = taskCurrentAttr
+          | otherwise = taskAttr
 
-        -- TODO can change arrow color with widget, but probably need to create new Attributes
-        -- prefixWidget = withAttr disabledAttr $ txt $ if selected then "> " else "  "
-
-        attr = if important then taskCurrentAttr else taskAttr
     pure $
         cached name .
         (if selected && not eTitle
@@ -116,6 +129,42 @@ renderTask' rn listIndex taskIndex task = do
         txt prefix <+> (if selected && not eTitle then widget' else widget)
         -- (prefixWidget <+> withAttr attr (if selected && not eTitle then widget' else widget))
 
+
+-- -- | Renders an individual task
+-- renderTask' :: (Int -> ResourceName) -> Int -> Int -> T.Task -> DSWidget
+-- renderTask' rn listIndex taskIndex task = do
+--     eTitle <- editingTitle . (^. mode) <$> asks dsState -- is the title being edited? (for visibility)
+--     selected <- (== (ListIndex listIndex, TaskIndex taskIndex)) . (^. current) <$> asks dsState -- is the current task selected?
+
+--     let isBreakLineTask = "---" `isInfixOf` (task ^. T.name)
+--     let taskText = task ^. T.name
+    
+--     attr
+--         | isBreakLineTask && "TODAY" `isInfixOf` taskText = dlDue
+--         | isBreakLineTask && "TOMORROW" `isInfixOf` taskText = dlSoon
+--         | isBreakLineTask = dlFar
+--         | selected = taskCurrentAttr
+--         | otherwise = taskAttr
+
+--     taskField <- getField . (^. mode) <$> asks dsState -- get the field, if it's being edited
+--     after <- indicators task -- get the indicators widget
+--     widget <- renderText task
+--     let name = rn taskIndex
+--         widget' = widgetFromMaybe widget taskField
+--     pure $
+--         cached name .
+--         (if selected && not eTitle
+--              then visible
+--              else id) .
+--         padBottom (Pad 1) .
+--         (<=> withAttr disabledAttr after) .
+--         withAttr
+--             (if selected
+--                  then taskCurrentAttr
+--                  else taskAttr) $
+--         if selected && not eTitle
+--             then widget'
+--             else widget
 
 renderTask :: (Int -> ResourceName) -> Int -> Int -> T.Task -> DSWidget
 renderTask rn listIndex taskIndex task = do

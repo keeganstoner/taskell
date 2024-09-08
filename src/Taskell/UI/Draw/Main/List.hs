@@ -66,51 +66,51 @@ renderTitle listIndex list = do
 
 
 
--- -- | Renders a list
--- renderList :: Int -> List -> DSWidget
--- renderList listIndex list = do
---     layout <- dsLayout <$> ask
---     eTitle <- editingTitle . (^. mode) <$> asks dsState
---     titleWidget <- renderTitle listIndex list
---     (ListIndex currentList, _) <- (^. current) <$> asks dsState
---     taskWidgets <-
---         sequence $
---         renderTask (RNTask . (ListIndex listIndex, ) . TaskIndex) listIndex `mapWithIndex`
---         (list ^. tasks)
---     let widget =
---             (if not eTitle
---                  then cached (RNList listIndex)
---                  else id) .
---             padLeftRight (columnPadding layout) .
---             hLimit (columnWidth layout) .
---             viewport (RNList listIndex) Vertical . vBox . (titleWidget :) $
---             toList taskWidgets
---     pure $
---         if currentList == listIndex
---             then visible widget
---             else widget
-
-
+-- | Renders a list
 renderList :: Int -> List -> DSWidget
 renderList listIndex list = do
     layout <- dsLayout <$> ask
+    eTitle <- editingTitle . (^. mode) <$> asks dsState
     titleWidget <- renderTitle listIndex list
     (ListIndex currentList, _) <- (^. current) <$> asks dsState
-    taskWidgets <- mapM (\(idx, task) -> do
-                           let taskNumberWidget = if listIndex == 0 then txt (tshow (idx + 1) <> ". ") else emptyWidget
-                           let resourceName = \_ -> RNTask (ListIndex listIndex, TaskIndex idx)  -- Always return the same resource name
-                           taskWidget <- renderTask resourceName listIndex idx task
-                           return $ if listIndex == 0
-                                       then hBox [taskNumberWidget, taskWidget]
-                                       else taskWidget
-                        ) (zip [0..] (toList $ list ^. tasks))
-    let widgetList = vBox (titleWidget : taskWidgets)
-    let widget = (cached (RNList listIndex) .
-                  padLeftRight (columnPadding layout) .
-                  hLimit (columnWidth layout) .
-                  viewport (RNList listIndex) Vertical) widgetList
-    return $ if currentList == listIndex
-                then visible widget
-                else widget
+    taskWidgets <-
+        sequence $
+        renderTask (RNTask . (ListIndex listIndex, ) . TaskIndex) listIndex `mapWithIndex`
+        (list ^. tasks)
+    let widget =
+            (if not eTitle
+                 then cached (RNList listIndex)
+                 else id) .
+            padLeftRight (columnPadding layout) .
+            hLimit (columnWidth layout) .
+            viewport (RNList listIndex) Vertical . vBox . (titleWidget :) $
+            toList taskWidgets
+    pure $
+        if currentList == listIndex
+            then visible widget
+            else widget
+
+
+-- renderList :: Int -> List -> DSWidget
+-- renderList listIndex list = do
+--     layout <- dsLayout <$> ask
+--     titleWidget <- renderTitle listIndex list
+--     (ListIndex currentList, _) <- (^. current) <$> asks dsState
+--     taskWidgets <- mapM (\(idx, task) -> do
+--                            let taskNumberWidget = if listIndex == 0 then txt (tshow (idx + 1) <> ". ") else emptyWidget
+--                            let resourceName = \_ -> RNTask (ListIndex listIndex, TaskIndex idx)  -- Always return the same resource name
+--                            taskWidget <- renderTask resourceName listIndex idx task
+--                            return $ if listIndex == 0
+--                                        then hBox [taskNumberWidget, taskWidget]
+--                                        else taskWidget
+--                         ) (zip [0..] (toList $ list ^. tasks))
+--     let widgetList = vBox (titleWidget : taskWidgets)
+--     let widget = (cached (RNList listIndex) .
+--                   padLeftRight (columnPadding layout) .
+--                   hLimit (columnWidth layout) .
+--                   viewport (RNList listIndex) Vertical) widgetList
+--     return $ if currentList == listIndex
+--                 then visible widget
+--                 else widget
 
 

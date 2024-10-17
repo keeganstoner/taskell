@@ -4,6 +4,8 @@ module Taskell.UI.Draw.Main.List
 
 import ClassyPrelude
 
+
+
 import Control.Lens ((^.))
 
 import Data.Char     (chr, ord)
@@ -11,8 +13,11 @@ import Data.Sequence (mapWithIndex)
 
 import Brick
 
+import qualified Taskell.Data.Task as T (Task, due)
+import Taskell.Data.Date (deadline, Deadline(..))
+
 import Taskell.Data.List          (List, tasks, title)
-import Taskell.Events.State.Types (current, mode)
+import Taskell.Events.State.Types (current, mode, time)
 import Taskell.IO.Config.Layout   (columnPadding, columnWidth)
 import Taskell.Types              (ListIndex (ListIndex), TaskIndex (TaskIndex))
 import Taskell.UI.Draw.Field      (textField, widgetFromMaybe)
@@ -66,51 +71,67 @@ renderTitle listIndex list = do
 
 
 
--- | Renders a list
-renderList :: Int -> List -> DSWidget
-renderList listIndex list = do
-    layout <- dsLayout <$> ask
-    eTitle <- editingTitle . (^. mode) <$> asks dsState
-    titleWidget <- renderTitle listIndex list
-    (ListIndex currentList, _) <- (^. current) <$> asks dsState
-    taskWidgets <-
-        sequence $
-        renderTask (RNTask . (ListIndex listIndex, ) . TaskIndex) listIndex `mapWithIndex`
-        (list ^. tasks)
-    let widget =
-            (if not eTitle
-                 then cached (RNList listIndex)
-                 else id) .
-            padLeftRight (columnPadding layout) .
-            hLimit (columnWidth layout) .
-            viewport (RNList listIndex) Vertical . vBox . (titleWidget :) $
-            toList taskWidgets
-    pure $
-        if currentList == listIndex
-            then visible widget
-            else widget
-
-
+-- -- | Renders a list
 -- renderList :: Int -> List -> DSWidget
 -- renderList listIndex list = do
 --     layout <- dsLayout <$> ask
+--     eTitle <- editingTitle . (^. mode) <$> asks dsState
 --     titleWidget <- renderTitle listIndex list
 --     (ListIndex currentList, _) <- (^. current) <$> asks dsState
---     taskWidgets <- mapM (\(idx, task) -> do
---                            let taskNumberWidget = if listIndex == 0 then txt (tshow (idx + 1) <> ". ") else emptyWidget
---                            let resourceName = \_ -> RNTask (ListIndex listIndex, TaskIndex idx)  -- Always return the same resource name
---                            taskWidget <- renderTask resourceName listIndex idx task
---                            return $ if listIndex == 0
---                                        then hBox [taskNumberWidget, taskWidget]
---                                        else taskWidget
---                         ) (zip [0..] (toList $ list ^. tasks))
---     let widgetList = vBox (titleWidget : taskWidgets)
---     let widget = (cached (RNList listIndex) .
---                   padLeftRight (columnPadding layout) .
---                   hLimit (columnWidth layout) .
---                   viewport (RNList listIndex) Vertical) widgetList
---     return $ if currentList == listIndex
---                 then visible widget
---                 else widget
+--     taskWidgets <-
+--         sequence $
+--         renderTask (RNTask . (ListIndex listIndex, ) . TaskIndex) listIndex `mapWithIndex`
+--         (list ^. tasks)
+--     let widget =
+--             (if not eTitle
+--                  then cached (RNList listIndex)
+--                  else id) .
+--             padLeftRight (columnPadding layout) .
+--             hLimit (columnWidth layout) .
+--             viewport (RNList listIndex) Vertical . vBox . (titleWidget :) $
+--             toList taskWidgets
+--     pure $
+--         if currentList == listIndex
+--             then visible widget
+--             else widget
+
+isTaskDueTodayOrOverdue :: UTCTime -> T.Task -> Bool
+isTaskDueTodayOrOverdue now task =
+    case task ^. T.due of
+        Just dueDate ->
+            let dl = deadline now dueDate
+            in dl == Today || dl == Passed  -- Include overdue tasks
+        Nothing -> False
+
+
+renderList :: Int -> List -> DSWidget
+renderList listIndex list = do
+    now <- (^. time) <$> asks dsState  -- Get the current time
+    layout <- dsLayout <$> ask
+    titleWidget <- renderTitle listIndex list
+    (ListIndex currentList, _) <- (^. current) <$> asks dsState
+    taskWidgets <- mapM (\(idx, task) -> do
+                           let isDueToday = isTaskDueTodayOrOverdue now task  -- Check if task is due today
+                           let numberWidth = 3
+                           let numberText = if isDueToday
+                                then tshow (idx + 1) <> ". "
+                                else replicate numberWidth ' '  -- Spaces for alignment
+                           let taskNumberWidget = if listIndex == 0
+                               then txt numberText
+                               else emptyWidget
+                           let resourceName = \_ -> RNTask (ListIndex listIndex, TaskIndex idx)  -- Always return the same resource name
+                           taskWidget <- renderTask resourceName listIndex idx task
+                           return $ if listIndex == 0
+                                       then hBox [taskNumberWidget, taskWidget]
+                                       else taskWidget
+                        ) (zip [0..] (toList $ list ^. tasks))
+    let widgetList = vBox (titleWidget : taskWidgets)
+    let widget = (cached (RNList listIndex) .
+                  padLeftRight (columnPadding layout) .
+                  hLimit (columnWidth layout) .
+                  viewport (RNList listIndex) Vertical) widgetList
+    return $ if currentList == listIndex
+                then visible widget
+                else widget
 
 

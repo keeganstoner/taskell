@@ -105,17 +105,19 @@ renderTask' rn listIndex taskIndex task = do
 
     let name = rn taskIndex
         widget' = widgetFromMaybe widget taskField
-        prefix = if selected then "> " else "  "
+        -- prefix = if selected then "> " else "  "
+        postfix = if selected then " *" else ""
         
         -- attr 
         --     | important = taskCurrentAttr
         --     | task1 = taskProj1
         --     | otherwise = taskAttr
     let attr
+        --   | selected = taskCurrentAttr
           | breakLineTask && "TODAY" `isInfixOf` taskName = dlDue
           | breakLineTask && "TOMORROW" `isInfixOf` taskName = dlSoon
           | breakLineTask = dlFar
-          | important = taskCurrentAttr
+          | important = dlDue
           | otherwise = taskAttr
 
     pure $
@@ -124,9 +126,12 @@ renderTask' rn listIndex taskIndex task = do
              then visible
              else id) .
         padBottom (Pad 1) .
-        (<=> withAttr disabledAttr (padLeft (Pad 2) after)) .
+        -- (<=> withAttr disabledAttr (padLeft (Pad 2) after)) .
+        (<=> withAttr disabledAttr after) .
         withAttr attr $
-        txt prefix <+> (if selected && not eTitle then widget' else widget)
+        -- if selected && not eTitle then widget' else widget
+        -- txt prefix <+> (if selected && not eTitle then widget' else widget)
+        (if selected && not eTitle then widget' else widget) <+> txt postfix
         -- (prefixWidget <+> withAttr attr (if selected && not eTitle then widget' else widget))
 
 

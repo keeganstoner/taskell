@@ -21,7 +21,7 @@ import Brick        (AttrName, attrName)
 import Brick.Themes (Theme, newTheme)
 import Brick.Util   (fg, on)
 import Graphics.Vty
-    ( defAttr, black, green, blue, magenta, yellow, red, white )
+    ( defAttr, black, green, blue, magenta, yellow, red, white, bold, withStyle)
 
 import Taskell.Data.Date (Deadline (..))
 
@@ -89,7 +89,7 @@ defaultTheme =
         , (subtaskCompleteAttr, fg yellow)
         -- , (taskCurrentAttr, fg magenta)
         , (disabledAttr, fg yellow)
-        , (dlDue, fg red)
-        , (dlSoon, fg yellow)
+        , (dlDue, withStyle (fg red) bold)    -- Make dlDue bold
+        , (dlSoon, withStyle (fg yellow) bold) -- Make dlSoon bold
         , (dlFar, fg green)
         ]

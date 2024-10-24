@@ -78,7 +78,7 @@ renderText task = pure $ textField (task ^. T.name)
 -- | Renders the appropriate indicators: description, sub task count, and due date
 indicators :: T.Task -> DSWidget
 indicators task = do
-    widgets <- sequence (($ task) <$> [renderDescIndicator, renderSubtaskCount, renderDate])
+    widgets <- sequence (($ task) <$> [renderDate, renderDescIndicator, renderSubtaskCount])
     pure . hBox $ padRight (Pad 1) <$> widgets
 
 -- | The individual parts of a task widget

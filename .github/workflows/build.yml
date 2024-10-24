@@ -1,0 +1,29 @@
+name: Build Haskell Project
+
+on:
+  push:
+    branches:
+      - main  # or the branch you want to trigger the build on
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install Stack
+      run: |
+        curl -sSL https://get.haskellstack.org/ | sh
+
+    - name: Build Project
+      run: |
+        stack build
+        stack install --local-bin-path ./build-output
+
+    - name: Upload Executable
+      uses: actions/upload-artifact@v2
+      with:
+        name: taskell
+        path: ./build-output/taskell

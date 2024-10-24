@@ -1,32 +1,42 @@
-name: Build Haskell Project
+name: Build Taskell Project with Cache
 
 on:
   push:
     branches:
-      - master  # or the branch you want to trigger the build on
+      - master  # Your branch is now "master"
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
+    # Restore cache
+    - name: Cache Stack build
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.stack
+          .stack-work
+        key: ${{ runner.os }}-stack-${{ hashFiles('stack.yaml') }}
+
     - name: Ensure Stack is Installed
       run: |
         if ! command -v stack &> /dev/null
         then
-            curl -sSL https://get.haskellstack.org/ | sh
+          curl -sSL https://get.haskellstack.org/ | sh
         fi
 
-    - name: Build Project
+    - name: Build Taskell Project
       run: |
-        stack build
-        stack install --local-bin-path ./build-output
+        stack setup                     # Ensures correct GHC version is installed
+        stack build                     # Builds the project using stack.yaml config
+        stack install --local-bin-path ./build-output  # Installs the executable in a specified path
 
-    - name: Upload Executable
+    - name: Upload Taskell Executable
       uses: actions/upload-artifact@v3
       with:
-        name: taskell
-        path: ./build-output/taskell
+        name: taskell-executable
+        path: ./build-output/taskell  # The executable file is named "taskell"

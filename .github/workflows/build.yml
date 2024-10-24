@@ -23,7 +23,7 @@ jobs:
         stack install --local-bin-path ./build-output
 
     - name: Upload Executable
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: taskell
         path: ./build-output/taskell

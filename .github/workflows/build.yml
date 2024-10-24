@@ -3,7 +3,7 @@ name: Build Haskell Project
 on:
   push:
     branches:
-      - main  # or the branch you want to trigger the build on
+      - master  # or the branch you want to trigger the build on
 
 jobs:
   build:

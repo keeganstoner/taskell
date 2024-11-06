@@ -54,7 +54,7 @@ import Data.Time.Clock (UTCTime) -- Make sure you have this import
 
 
 renderSubtask :: Maybe Field -> DetailItem -> Int -> ST.Subtask -> TWidget
-renderSubtask f current i subtask = padBottom (Pad 1) $ prefix <+> final
+renderSubtask f current i subtask = padBottom (Pad 1) $ prefix <+> final-- <+> postfix
   where
     cur =
         case current of
@@ -71,15 +71,19 @@ renderSubtask f current i subtask = padBottom (Pad 1) $ prefix <+> final
                             else subtaskIncompleteAttr
                             
     -- Define prefix to include the ">" only when selected
-    prefixSymbol = if cur then "> " else "  "  -- Add a ">" symbol if the subtask is selected
+    -- prefixSymbol = if cur then "> " else "  "  -- Add a ">" symbol if the subtask is selected
     checkbox = 
         if done
             then "[x] "
             else "[ ] "
     prefix =
-        attr . txt $ prefixSymbol ++ checkbox  -- Combine the new symbol with the existing checkbox
+        attr . txt $ checkbox -- Combine the new symbol with the existing checkbox
     
-    widget = textField (subtask ^. ST.name)
+    subtaskName = subtask ^. ST.name <> if cur then " *" else ""
+
+    -- postfix = if cur then txt " *" else emptyWidget
+
+    widget = textField subtaskName
     final
         | cur = visible . attr $ widgetFromMaybe widget f
         | otherwise = attr widget

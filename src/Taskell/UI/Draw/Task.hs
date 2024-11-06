@@ -7,6 +7,7 @@ module Taskell.UI.Draw.Task
 import ClassyPrelude
 
 import Control.Lens ((^.))
+import Control.Lens ((&), (.~))
 
 import Brick
 
@@ -87,6 +88,12 @@ parts task =
     TaskWidget <$> renderText task <*> renderDate task <*> renderDescIndicator task <*>
     renderSubtaskCount task
 
+
+
+
+
+-- WORKS 11/6/24
+
 -- | Renders an individual task
 renderTask' :: (Int -> ResourceName) -> Int -> Int -> T.Task -> DSWidget
 renderTask' rn listIndex taskIndex task = do
@@ -94,19 +101,23 @@ renderTask' rn listIndex taskIndex task = do
     selected <- (== (ListIndex listIndex, TaskIndex taskIndex)) . (^. current) <$> asks dsState -- is the current task selected?
     let important = "!" `isInfixOf` (task ^. T.name) -- Check if the task name contains "!"
     let breakLineTask = "---" `isInfixOf` (task ^. T.name) -- Check for a break line task
-    let taskName = task ^. T.name
+    -- let taskName = task ^. T.name
+    let taskName = task ^. T.name <> if selected then " *" else ""
+
     -- TEST
     let task1 = "TASK1" `isInfixOf` (task ^. T.name)
 
     taskField <- getField . (^. mode) <$> asks dsState -- get the field, if it's being edited
     after <- indicators task -- get the indicators widget
     
-    widget <- renderText task
+    -- widget <- renderText task
+    widget <- renderText (task & T.name .~ taskName)
 
     let name = rn taskIndex
         widget' = widgetFromMaybe widget taskField
         -- prefix = if selected then "> " else "  "
         postfix = if selected then " *" else ""
+        -- postfix = if selected then txt " *" else emptyWidget
         
         -- attr 
         --     | important = taskCurrentAttr
@@ -129,10 +140,24 @@ renderTask' rn listIndex taskIndex task = do
         -- (<=> withAttr disabledAttr (padLeft (Pad 2) after)) .
         (<=> withAttr disabledAttr after) .
         withAttr attr $
+        -- vBox [widget', postfix]
+
+        (if selected && not eTitle then widget' else widget)-- <+> txt postfix
+
+
         -- if selected && not eTitle then widget' else widget
         -- txt prefix <+> (if selected && not eTitle then widget' else widget)
-        (if selected && not eTitle then widget' else widget) <+> txt postfix
+        
         -- (prefixWidget <+> withAttr attr (if selected && not eTitle then widget' else widget))
+
+
+
+
+
+
+
+
+
 
 
 -- -- | Renders an individual task

@@ -69,7 +69,7 @@ shiftBy = S.shiftBy
 search :: Text -> Update
 search text = (L.searchFor text <$>)
 
-appendToLast :: T.Task -> Update
+appendToLast :: T.Task -> Update -- I think this is what completing a task does?
 appendToLast task lists =
     fromMaybe lists $ do
         let idx = length lists - 1

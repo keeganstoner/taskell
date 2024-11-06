@@ -53,6 +53,7 @@ appendDescription text =
         then id
         else description %~ maybeAppend text
 
+
 setDue :: TZ -> UTCTime -> Text -> Task -> Maybe Task
 setDue tz now date task =
     if null date

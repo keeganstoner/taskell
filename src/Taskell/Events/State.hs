@@ -34,6 +34,7 @@ module Taskell.Events.State
     , moveLeftBottom
     , moveRightBottom
     , moveToLastBottom
+    ,appendDateToDescription -- added this
     , moveToLastTop
     , delete
     , selectList
@@ -61,7 +62,7 @@ module Taskell.Events.State
     , setCurrentTask
     ) where
 
-import ClassyPrelude hiding (delete)
+import ClassyPrelude hiding (delete, pack)
 
 import Control.Lens ((%~), (&), (.~), (?~), (^.))
 
@@ -80,6 +81,10 @@ import           Taskell.Events.State.Types
 import           Taskell.Events.State.Types.Mode (InsertMode (..), InsertType (..), ModalType (..),
                                                   Mode (..), HelpScrollPosition(..))
 import           Taskell.UI.Draw.Field           (Field, blankField, getText, textToField)
+
+import Data.Time.Format (defaultTimeLocale, formatTime)
+import Data.Text (pack)
+import qualified Taskell.Data.Task as T (Task, appendDescription)
 
 type InternalStateful = State -> State
 
@@ -260,8 +265,21 @@ moveToLast pos state =
     idx = length (state ^. lists) - 1
     cur = getCurrentList state
 
-moveToLastBottom :: Stateful
+moveToLastBottom :: Stateful -- This is completing a task
 moveToLastBottom = moveToLast Lists.Bottom
+
+
+appendDateToDescription :: Stateful
+appendDateToDescription state = do
+    let currentDate = formatTime defaultTimeLocale "%Y-%m-%d" (state ^. time)
+    case getCurrentTask state of
+        Just currentTask -> do
+            -- Append the date to the description
+            let updatedTask = currentTask & T.appendDescription ("\n\nCompleted on: " <> pack currentDate)
+            -- Use `setCurrentTask` without further wrapping
+            setCurrentTask updatedTask state
+        Nothing -> pure state  -- If no current task, return state unchanged
+
 
 moveToLastTop :: Stateful
 moveToLastTop = moveToLast Lists.Top

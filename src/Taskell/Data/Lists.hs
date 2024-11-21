@@ -34,6 +34,11 @@ due lists = sortOn ((^. T.due) . snd) dues
     format x lst = (\(y, t) -> ((ListIndex x, y), t)) <$> L.due lst
     dues = concat $ format S.<#> lists
 
+-- sortOn seems to sort by T.due (task.due)
+
+
+
+
 clearDue :: Pointer -> Update
 clearDue (idx, tsk) = updateFn idx (L.clearDue tsk)
 

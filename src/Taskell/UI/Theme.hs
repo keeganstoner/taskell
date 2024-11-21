@@ -13,6 +13,7 @@ module Taskell.UI.Theme
     , defaultTheme
     , dlDue
     , dlSoon
+    , dlOverdue
     , dlFar
     ) where
 
@@ -56,12 +57,14 @@ subtaskIncompleteAttr = attrName "subtaskIncomplete"
 disabledAttr :: AttrName
 disabledAttr = attrName "disabled"
 
-dlDue, dlSoon, dlFar :: AttrName
+dlOverdue, dlDue, dlSoon, dlFar :: AttrName
 dlDue = attrName "dlDue"
 
 dlSoon = attrName "dlSoon"
 
 dlFar = attrName "dlFar"
+
+dlOverdue = attrName "dlOverdue"
 
 -- convert deadline into attribute
 dlToAttr :: Deadline -> AttrName
@@ -71,7 +74,7 @@ dlToAttr dl =
         ThisWeek -> dlFar
         Tomorrow -> dlSoon
         Today    -> dlDue
-        Passed   -> dlDue
+        Passed   -> dlOverdue
 
 -- default theme
 defaultTheme :: Theme
@@ -89,7 +92,8 @@ defaultTheme =
         , (subtaskCompleteAttr, fg yellow)
         -- , (taskCurrentAttr, fg magenta)
         , (disabledAttr, fg yellow)
-        , (dlDue, withStyle (fg red) bold)    -- Make dlDue bold
-        , (dlSoon, withStyle (fg yellow) bold) -- Make dlSoon bold
+        , (dlOverdue, withStyle (fg red) bold)    -- Make dlDue bold
+        , (dlDue, fg red)    -- Make dlDue bold
+        , (dlSoon, fg yellow) -- Make dlSoon bold
         , (dlFar, fg green)
         ]

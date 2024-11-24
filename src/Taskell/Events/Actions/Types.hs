@@ -24,6 +24,7 @@ data ActionType
     | Delete
     | Detail
     | DueDate
+    | SortDue
     | ClearDate
     | MoveUp
     | MoveDown
@@ -67,6 +68,7 @@ read "clear"           = Clear
 read "delete"          = Delete
 read "detail"          = Detail
 read "dueDate"         = DueDate
+read "sortdue"         = SortDue
 read "clearDate"       = ClearDate
 read "moveUp"          = MoveUp
 read "moveDown"        = MoveDown

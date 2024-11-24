@@ -40,6 +40,20 @@ due list = catMaybes (filt S.<#> (list ^. tasks))
   where
     filt int task = const (TaskIndex int, task) <$> task ^. T.due
 
+sortTasksByDueDate :: Update
+sortTasksByDueDate list = list & tasks .~ sortedTasks
+  where
+    -- Add index information to each task
+    tasksWithIndex = zip [0..] (toList (list ^. tasks))
+    -- Sort with extended comparison that considers original position
+    sortedTasks = fromList . map snd . sortBy compareDueDates $ tasksWithIndex
+    compareDueDates (idx1, t1) (idx2, t2) = case (t1 ^. T.due, t2 ^. T.due) of
+        (Nothing, Nothing) -> compare idx1 idx2  -- preserve order of no-date tasks
+        (Nothing, _)      -> GT
+        (_, Nothing)      -> LT
+        (Just d1, Just d2) -> case compare d1 d2 of
+                               EQ -> compare idx1 idx2  -- if dates equal, maintain original order
+                               other -> other
 clearDue :: TaskIndex -> Update
 clearDue (TaskIndex int) = updateFn int T.clearDue
 

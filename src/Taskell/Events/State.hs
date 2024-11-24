@@ -43,6 +43,7 @@ module Taskell.Events.State
     , undo
     , redo
     , store
+    , sortCurrentListTasksByDueDate
     , searchMode
     , clearSearch
     , appendSearch
@@ -71,7 +72,7 @@ import Data.Text       (strip)
 import Data.Time.Zones (TZ)
 
 import qualified Taskell.Data.List  as L (List, deleteTask, duplicate, getTask, move, nearest, new,
-                                          newAt, nextTask, prevTask, title, update)
+                                          newAt, nextTask, prevTask, title, update, sortTasksByDueDate)
 import qualified Taskell.Data.Lists as Lists
 import           Taskell.Data.Task  (Task, isBlank, name)
 import           Taskell.Types
@@ -122,6 +123,18 @@ setTime t = time .~ t
 
 write :: Stateful
 write state = pure $ state & (io ?~ (state ^. lists))
+
+
+-- Add this function to Taskell.Events.State
+sortCurrentListTasksByDueDate :: Stateful
+sortCurrentListTasksByDueDate state = do
+    -- Get the current list and update it with the sorted version
+    case getList state of
+        Just list -> 
+            let sortedList = L.sortTasksByDueDate list
+            in pure $ setList state sortedList
+        Nothing -> pure state
+
 
 -- createList
 createList :: Stateful

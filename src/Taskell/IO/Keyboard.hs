@@ -60,6 +60,7 @@ defaultBindings =
     , (BChar 'D', A.Delete)
     , (BKey "Enter", A.Detail)
     , (BChar '@', A.DueDate)
+    , (BChar '#', A.SortDue)
     , (BKey "Backspace", A.ClearDate)
     , (BChar 'K', A.MoveUp)
     , (BChar 'J', A.MoveDown)

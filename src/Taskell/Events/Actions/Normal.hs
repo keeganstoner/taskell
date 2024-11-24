@@ -44,6 +44,7 @@ events
     , (A.Delete, (write =<<) . (delete =<<) . store)
     , (A.Detail, showDetail)
     , (A.DueDate, (editDue =<<) . (store =<<) . showDetail)
+    , (A.SortDue, (write =<<) . (sortCurrentListTasksByDueDate =<<) . store)
     , (A.ClearDate, (write =<<) . (clearDate =<<) . store)
     -- moving tasks
     , (A.MoveUp, (write =<<) . (up =<<) . store)

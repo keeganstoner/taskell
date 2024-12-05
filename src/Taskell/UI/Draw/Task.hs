@@ -14,7 +14,7 @@ import Brick
 import           Taskell.Data.Date          (deadline, timeToText)
 import qualified Taskell.Data.Task          as T (Task, contains, countCompleteSubtasks,
                                                   countSubtasks, description, due, hasSubtasks,
-                                                  name)
+                                                  name, subtasks)
 import           Taskell.Events.State.Types (current, mode, searchTerm, time, timeZone)
 import           Taskell.IO.Config.Layout   (descriptionIndicator)
 import           Taskell.Types              (ListIndex (..), TaskIndex (..))
@@ -23,6 +23,8 @@ import           Taskell.UI.Draw.Mode
 import           Taskell.UI.Draw.Types      (DSWidget, DrawState (..), ReaderDrawState, TWidget)
 import           Taskell.UI.Theme
 import           Taskell.UI.Types           (ResourceName)
+
+import qualified Taskell.Data.Subtask as ST (Subtask, complete, name)
 
 import Taskell.Data.Date (deadline, timeToDisplay)
 
@@ -89,7 +91,20 @@ parts task =
     renderSubtaskCount task
 
 
+--- 12/4/24 Adding new feature for subtask display
 
+-- | Renders uncompleted subtasks
+renderUncompleteSubtasks :: T.Task -> DSWidget
+renderUncompleteSubtasks task = do
+    let subtasks = task ^. T.subtasks
+    let uncompleted = filter (not . (^. ST.complete)) subtasks
+    if null uncompleted
+        then pure emptyWidget
+        else do
+            let subtaskLines = map (\st -> 
+                    withAttr subtaskCompleteAttr $ 
+                    txt "  • " <+> textField (st ^. ST.name)) (toList uncompleted)
+            pure $ vBox subtaskLines
 
 
 -- WORKS 11/6/24
@@ -113,6 +128,9 @@ renderTask' rn listIndex taskIndex task = do
     -- widget <- renderText task
     widget <- renderText (task & T.name .~ taskName)
 
+    -- subtasks display
+    subtasksWidget <- renderUncompleteSubtasks task
+
     let name = rn taskIndex
         widget' = widgetFromMaybe widget taskField
         -- prefix = if selected then "> " else "  "
@@ -131,19 +149,26 @@ renderTask' rn listIndex taskIndex task = do
           | important = dlDue
           | otherwise = taskAttr
 
+    -- pure $
+    --     cached name .
+    --     (if selected && not eTitle
+    --          then visible
+    --          else id) .
+    --     padBottom (Pad 1) .
+    --     -- (<=> withAttr disabledAttr (padLeft (Pad 2) after)) .
+    --     (<=> withAttr disabledAttr after) .
+    --     withAttr attr $
+    --     -- vBox [widget', postfix]
+
+    --     ((if selected && not eTitle then widget' else widget) <=> subtasksWidget)-- <+> txt postfix
     pure $
         cached name .
-        (if selected && not eTitle
-             then visible
-             else id) .
+        (if selected && not eTitle then visible else id) .
         padBottom (Pad 1) .
-        -- (<=> withAttr disabledAttr (padLeft (Pad 2) after)) .
-        (<=> withAttr disabledAttr after) .
         withAttr attr $
-        -- vBox [widget', postfix]
-
-        (if selected && not eTitle then widget' else widget)-- <+> txt postfix
-
+        ((if selected && not eTitle then widget' else widget) <=>
+         withAttr disabledAttr after <=>
+         subtasksWidget)
 
         -- if selected && not eTitle then widget' else widget
         -- txt prefix <+> (if selected && not eTitle then widget' else widget)

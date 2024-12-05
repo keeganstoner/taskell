@@ -96,4 +96,5 @@ defaultTheme =
         , (dlDue, fg red)    -- Make dlDue bold
         , (dlSoon, fg yellow) -- Make dlSoon bold
         , (dlFar, fg green)
+        , (taskAttr, withStyle (fg white) bold)
         ]

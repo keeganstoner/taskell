@@ -18,6 +18,7 @@ module Taskell.Events.State
     , deleteCurrentList
     , clearItem
     , clearDate
+    , clearAllDatesInCurrentList
     , above
     , below
     , bottom
@@ -72,7 +73,7 @@ import Data.Text       (strip)
 import Data.Time.Zones (TZ)
 
 import qualified Taskell.Data.List  as L (List, deleteTask, duplicate, getTask, move, nearest, new,
-                                          newAt, nextTask, prevTask, title, update, sortTasksByDueDate)
+                                          newAt, nextTask, prevTask, title, update, sortTasksByDueDate, tasks)
 import qualified Taskell.Data.Lists as Lists
 import           Taskell.Data.Task  (Task, isBlank, name)
 import           Taskell.Types
@@ -83,9 +84,12 @@ import           Taskell.Events.State.Types.Mode (InsertMode (..), InsertType (.
                                                   Mode (..), HelpScrollPosition(..))
 import           Taskell.UI.Draw.Field           (Field, blankField, getText, textToField)
 
+
+
+
 import Data.Time.Format (defaultTimeLocale, formatTime)
 import Data.Text (pack)
-import qualified Taskell.Data.Task as T (Task, appendDescription)
+import qualified Taskell.Data.Task as T (Task, appendDescription, clearDue)
 
 type InternalStateful = State -> State
 
@@ -222,6 +226,15 @@ clearDate state = pure $ state & lists .~ Lists.clearDue (state ^. current) (sta
 
 bottom :: Stateful
 bottom = pure . selectLast
+
+clearAllDatesInCurrentList :: Stateful
+clearAllDatesInCurrentList state = do
+    case getList state of
+        Just list -> 
+            let updatedList = list & L.tasks %~ fmap T.clearDue
+                newState = setList state updatedList
+            in pure $ newState & io ?~ (newState ^. lists)
+        Nothing -> pure state
 
 selectLast :: InternalStateful
 selectLast state = setIndex state (countCurrent state - 1)

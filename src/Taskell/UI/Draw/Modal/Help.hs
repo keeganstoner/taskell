@@ -19,6 +19,8 @@ import Taskell.Data.Utility (updateLast)
 descriptions :: [([ActionType], Text)]
 descriptions =
     [ ([A.Help], "Show this list of controls")
+    , ([A.SortDue], "Sort first list by due date")
+    , ([A.ClearAllDates], "Delete all due dates in this list")
     , ([A.Due], "Show tasks with due dates")
     , ([A.Previous, A.Next, A.Left, A.Right], "Move down / up / left / right")
     , ([A.Bottom], "Go to bottom of list")
@@ -32,7 +34,6 @@ descriptions =
     , ([A.DueDate], "Add/edit due date (yyyy-mm-dd)")
     , ([A.ClearDate], "Removes due date")
     , ([A.MoveUp, A.MoveDown], "Shift task down / up")
-    , ([A.SortDue], "Sort first list by due date")
     , ([A.MoveLeftBottom, A.MoveRightBottom], "Shift task left / right (to bottom of list)")
     , ([A.MoveLeftTop, A.MoveRightTop], "Shift task left / right (to top of list)")
     , ( [A.Complete]

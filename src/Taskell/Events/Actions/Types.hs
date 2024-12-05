@@ -26,6 +26,7 @@ data ActionType
     | DueDate
     | SortDue
     | ClearDate
+    | ClearAllDates
     | MoveUp
     | MoveDown
     | MoveLeftTop
@@ -70,6 +71,7 @@ read "detail"          = Detail
 read "dueDate"         = DueDate
 read "sortdue"         = SortDue
 read "clearDate"       = ClearDate
+read "clearAllDates"   = ClearAllDates
 read "moveUp"          = MoveUp
 read "moveDown"        = MoveDown
 read "moveLeftTop"     = MoveLeftTop

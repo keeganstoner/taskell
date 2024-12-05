@@ -54,6 +54,8 @@ sortTasksByDueDate list = list & tasks .~ sortedTasks
         (Just d1, Just d2) -> case compare d1 d2 of
                                EQ -> compare idx1 idx2  -- if dates equal, maintain original order
                                other -> other
+
+                               
 clearDue :: TaskIndex -> Update
 clearDue (TaskIndex int) = updateFn int T.clearDue
 

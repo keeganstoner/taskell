@@ -11,7 +11,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     # Restore cache
     - name: Cache Stack build
@@ -36,7 +36,7 @@ jobs:
         stack install --local-bin-path ./build-output  # Installs the executable in a specified path
 
     - name: Upload Taskell Executable
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: taskell-executable
         path: ./build-output/taskell  # The executable file is named "taskell"

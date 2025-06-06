@@ -12,7 +12,7 @@ import Brick
 
 import Data.Time.Zones (TZ)
 
-import           Taskell.Data.Date                 (deadline, timeToDisplay)
+import           Taskell.Data.Date                 (deadline, timeToDisplay, timeToDisplayFormatted)
 import qualified Taskell.Data.Subtask              as ST (Subtask, complete, name)
 import           Taskell.Data.Task                 (Task, description, due, name, subtasks)
 import           Taskell.Events.State              (getCurrentTask)
@@ -128,7 +128,7 @@ renderDate tz now field item task =
   where
     day = task ^. due
     prefix = txt "Due: "
-    widget = textField $ maybe "" (timeToDisplay tz now) day  -- Pass 'now' to timeToDisplay
+    widget = textField $ maybe "" (timeToDisplayFormatted tz now) day  -- Pass 'now' to timeToDisplayFormatted
 
 
 

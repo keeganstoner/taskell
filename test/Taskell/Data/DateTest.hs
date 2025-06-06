@@ -15,6 +15,14 @@ import Taskell.Data.Date
 testDate :: UTCTime
 testDate = UTCTime (fromGregorian 2018 5 18) (secondsToDiffTime 0)
 
+-- Friday test date (May 18, 2018 was a Friday)
+fridayDate :: UTCTime
+fridayDate = UTCTime (fromGregorian 2018 5 18) (secondsToDiffTime 0)
+
+-- Monday test date (May 21, 2018 was a Monday)
+mondayDate :: UTCTime
+mondayDate = UTCTime (fromGregorian 2018 5 21) (secondsToDiffTime 0)
+
 -- sorting test data
 sort1 :: Due
 sort1 = DueTime (UTCTime (fromGregorian 2017 2 4) 0)
@@ -239,5 +247,11 @@ test_date =
                          "Passed"
                          Passed
                          (deadline testDate (DueDate (fromGregorian 2018 05 17))))
+              , testCase
+                    "Monday as Tomorrow for Friday"
+                    (assertEqual
+                         "Monday should be considered Tomorrow when today is Friday"
+                         Tomorrow
+                         (deadline fridayDate (DueDate (fromGregorian 2018 05 21))))
               ]
         ]

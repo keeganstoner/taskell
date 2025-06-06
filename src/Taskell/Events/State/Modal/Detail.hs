@@ -29,7 +29,7 @@ import ClassyPrelude
 
 import Control.Lens ((&), (.~), (^.))
 
-import Taskell.Data.Date (timeToDisplay)
+import Taskell.Data.Date (timeToDisplay, timeToDisplayFormatted)
 import qualified Taskell.Data.Seq as S
 import qualified Taskell.Data.Subtask as ST (blank, name, toggle)
 import Taskell.Data.Task
@@ -181,7 +181,7 @@ editDue state = do
     day <- (^. due) <$> getCurrentTask state
     let tz = state ^. timeZone
     let now = state ^. time
-    let day' = maybe "" (timeToDisplay tz now) day
+    let day' = maybe "" (timeToDisplayFormatted tz now) day
     pure $ state & mode .~ Modal (Detail DetailDate (DetailInsert (textToField day')))
 
 

@@ -4,6 +4,7 @@ module Taskell.Data.Date
     , Due(..)
     , timeToText
     , timeToDisplay
+    , timeToDisplayFormatted
     , timeToOutput
     , timeToOutputLocal
     , textToTime
@@ -77,9 +78,16 @@ timeToText tz now (DueTime time) = format fmt local
 
 
 
--- Function to display dates in a user-friendly manner, including handling of overdue dates
-timeToDisplay :: TZ -> UTCTime -> Due -> Text
-timeToDisplay tz now due = case due of
+-- Function to display dates in a user-friendly manner
+timeToDisplay :: TZ -> Due -> Text
+timeToDisplay tz due = case due of
+    DueDate day -> format dateFormat day
+    DueTime time -> format timeDisplayFormat (utcToLocalTimeTZ tz time)
+
+-- Function to display dates in a user-friendly manner with enhanced formatting
+-- including Today, Tomorrow, and weekday display
+timeToDisplayFormatted :: TZ -> UTCTime -> Due -> Text
+timeToDisplayFormatted tz now due = case due of
     DueDate day ->
         let daysDiff = daysBetween now day
         in if daysDiff < 0 then
@@ -142,7 +150,7 @@ deadline :: UTCTime -> Due -> Deadline
 deadline now date
     | days < 0 = Passed
     | days == 0 = Today
-    | days == 1 = Tomorrow
+    | days == 1 || (isFriday && days == 3) = Tomorrow  -- Monday is the "tomorrow" of Friday
     | days < 7 = ThisWeek
     | otherwise = Plenty
   where
@@ -150,3 +158,6 @@ deadline now date
         case date of
             DueTime t -> diffDays (utctDay t) (utctDay now)
             DueDate d -> diffDays d (utctDay now)
+    
+    -- Check if today is Friday (day of week 5)
+    isFriday = let (_, _, dayOfWeek) = toWeekDate (utctDay now) in dayOfWeek == 5

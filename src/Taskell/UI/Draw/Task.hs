@@ -11,7 +11,7 @@ import Control.Lens ((&), (.~))
 
 import Brick
 
-import           Taskell.Data.Date          (deadline, timeToText)
+import           Taskell.Data.Date          (deadline, timeToText, timeToDisplayFormatted)
 import qualified Taskell.Data.Task          as T (Task, contains, countCompleteSubtasks,
                                                   countSubtasks, description, due, hasSubtasks,
                                                   name, subtasks)
@@ -52,7 +52,7 @@ renderDate task = do
     now <- (^. time) <$> asks dsState
     tz <- (^. timeZone) <$> asks dsState
     pure . fromMaybe emptyWidget $
-        (\date -> withAttr (dlToAttr $ deadline now date) (txt $ timeToDisplay tz now date)) <$>
+        (\date -> withAttr (dlToAttr $ deadline now date) (txt $ timeToDisplayFormatted tz now date)) <$>
         task ^. T.due
 
 
